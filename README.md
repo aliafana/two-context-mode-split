@@ -126,7 +126,7 @@ repository is the per-stack engineering record that feeds it.
   visible-answer floor does. `replay.mjs` gains an optional `PROMPTS=<path>` env var for
   alternate frozen payloads; the headline and Layer-2 conclusions are updated to the measured
   attribution; the seven-tier citation in Context is corrected to PRs #461/#463 (per Seo).
-  Zenodo: [10.5281/zenodo.22013238](https://doi.org/10.5281/zenodo.22013238)
+  Zenodo: [10.5281/zenodo.22013372](https://doi.org/10.5281/zenodo.22013372)
   (new version under the same record; concept DOI 10.5281/zenodo.21924472
   always resolves to the latest version).
 - **v1.0.0 (2026-08-14)** — initial record: [10.5281/zenodo.21924473](https://doi.org/10.5281/zenodo.21924473).
@@ -136,7 +136,7 @@ repository is the per-stack engineering record that feeds it.
 ```
 Afana, A. (2026). Two-Context Mode Split: Substitution vs Synthesis under a
 Token-Cap Sweep on a Production Arabic Sales Router (v1.1.0) [Data set].
-Zenodo. https://doi.org/10.5281/zenodo.22013238
+Zenodo. https://doi.org/10.5281/zenodo.22013372
 ```
 
 ## License
