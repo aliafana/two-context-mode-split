@@ -31,13 +31,18 @@ over a 10× cap range. 49 tokens is 1.2% of the largest cap tested.
 | truncated | 0/20 | 0/20 | 0/20 | 0/20 |
 
 Medians move 12 tokens across a 10× cap range, non-monotonically, while run-to-run variation
-inside a single cell is 48–63 tokens. Cap explains nothing. The response prompt contains the
-instruction `2-4 sentences.`, and the cap sits an order of magnitude above where that instruction
-lands — so the instruction is the binding constraint and the cap never becomes one.
+inside a single cell is 48–63 tokens. Cap explains nothing. The natural suspect was the response
+prompt's instruction `2-4 sentences.` — so v1.1.0 deleted exactly that sentence from the frozen
+payload (a byte-verified 15-byte change) and re-ran the grid against a same-day control: pooled
+medians moved only **127 → 138.5 (1.09×)**, zero truncations, max 174 against a 4096 cap.
+**Neither the instruction nor the cap is the binding constraint — the model's own natural answer
+length is.** Full arm: [`instruction-off/`](instruction-off/).
 
 This **bounds** the workload-gradient result from the middleware leg below; it does not contradict
-it. A gradient is a property of synthesis calls allowed to run to their natural stop. A production
-sales reply is length-instructed by construction, because merchants want short replies.
+it. A gradient is a property of synthesis calls allowed to run to their natural stop — and on this
+stack the natural stop itself sits an order of magnitude below every cap: a hosted model with no
+reasoning trace floors near its visible answer. A production sales reply is length-instructed by
+construction; the instruction just lands where the model already stops.
 
 `finish_reason` is `stop` on 160/160 calls. Full tables, deviations and threats to validity are in
 [`analysis.md`](analysis.md).
@@ -70,6 +75,7 @@ sales reply is length-instructed by construction, because merchants want short r
 | `replay.mjs` | standalone replay driver — stdlib + `fetch`, zero dependencies, runs anywhere |
 | `check-numerals.mjs` | re-derives the §3.2 counts from the raw data alone, no network, no application source |
 | `two-context-sweep.ts` | the original driver, kept as provenance: it *imports* the prompt builders from the running application rather than copying them, which is why the published prompts cannot have drifted from what ships. It does not run outside that application — use `replay.mjs` |
+| `instruction-off/` | **v1.1.0** — the attribution arm: the length instruction deleted from the frozen payload (byte-verified single-span change), 80+80 calls against a same-day control. Answers *which constraint actually binds* |
 
 Replay the whole grid, or one cell:
 
@@ -94,10 +100,14 @@ split. The other two legs measured the same distinction on different systems:
   Substitution deterministic and flat across repeated runs; synthesis efficiency scaling with
   model size.
 - **Jiwon Seo** (Hashevolution) — JAMES cognitive middleware, gemma4:e4b:
-  [10.5281/zenodo.20363998](https://doi.org/10.5281/zenodo.20363998), with
-  [PR #440](https://github.com/Hashevolution/James-RAG-Evol/pull/440) and
-  [Issue #448](https://github.com/Hashevolution/James-RAG-Evol/issues/448). A seven-tier
-  natural-stop gradient: synthesis output tracking task weight.
+  [10.5281/zenodo.20363998](https://doi.org/10.5281/zenodo.20363998) — a seven-tier
+  natural-stop gradient (synthesis output tracking task weight), closed in
+  [PR #461](https://github.com/Hashevolution/James-RAG-Evol/pull/461) and
+  [PR #463](https://github.com/Hashevolution/James-RAG-Evol/pull/463); the earlier
+  two-mode / three-workload split is
+  [PR #440](https://github.com/Hashevolution/James-RAG-Evol/pull/440). Cross-stack numbers
+  from the Converse leg are in
+  [Issue #448](https://github.com/Hashevolution/James-RAG-Evol/issues/448).
 
 What this leg adds that a fixture sweep cannot: the same two call shapes measured **through a
 production runtime** — persona, store policies, a sales-mode block, a dialect guide, grounding
@@ -107,6 +117,17 @@ from that: the length instruction pre-empting the cap, and the deployment-config
 
 The three-way finding itself is to be archived in a joint record under all three authors; this
 repository is the per-stack engineering record that feeds it.
+
+## Changelog
+
+- **v1.1.0 (2026-08-19)** — adds the instruction-removed arm under
+  [`instruction-off/`](instruction-off/), prompted by Jiwon Seo's review of v1.0.0 (the
+  instruction/no-trace confound). Result: neither cap nor instruction binds — the model's
+  visible-answer floor does. `replay.mjs` gains an optional `PROMPTS=<path>` env var for
+  alternate frozen payloads; the headline and Layer-2 conclusions are updated to the measured
+  attribution; the seven-tier citation in Context is corrected to PRs #461/#463 (per Seo).
+  Zenodo: new version under the same record (concept DOI 10.5281/zenodo.21924472).
+- **v1.0.0 (2026-08-14)** — initial record: [10.5281/zenodo.21924473](https://doi.org/10.5281/zenodo.21924473).
 
 ## Citation
 

@@ -14,13 +14,19 @@
  * Any OpenAI-compatible endpoint works:
  *   OPENAI_BASE_URL=http://localhost:11434/v1 SWEEP_MODEL=gemma3:12b node replay.mjs
  *
+ * PROMPTS=<path> replays an alternate frozen payload (default: prompts.json
+ * beside this script) — e.g. the v1.1.0 instruction-removed arm:
+ *   PROMPTS=instruction-off/variant-prompts.json SHAPE=synthesis node replay.mjs
+ *
  * Zero-failure rule: a cell that still fails after retries aborts the run and
  * writes nothing. A dataset with holes must never be labelled clean.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
-const spec = JSON.parse(readFileSync(new URL("./prompts.json", import.meta.url), "utf8"));
+const spec = JSON.parse(
+  readFileSync(process.env.PROMPTS ?? new URL("./prompts.json", import.meta.url), "utf8")
+);
 
 const MODEL = process.env.SWEEP_MODEL || spec.model;
 const BASE_URL = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";

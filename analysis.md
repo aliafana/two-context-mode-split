@@ -1,6 +1,8 @@
 # Analysis — Two-Context Mode Split on a Production Stack
 
-**Run:** `two-context-sweep-2026-08-12T12-27-16-764Z.json` · **160/160 cells, zero failures**
+**Runs:** `two-context-sweep-2026-08-12T12-27-16-764Z.json` (v1.0.0 · **160/160 cells, zero
+failures**) · [`instruction-off/`](instruction-off/) control + variant arms (v1.1.0, 2026-08-19 ·
+**160/160, zero failures**)
 **Model:** `gpt-4o-mini` · **T** = 0.2 · **N** = 20 per cell · **caps** 400 / 800 / 1600 / 4096
 **Cost:** 135,920 prompt + 13,988 completion tokens ≈ $0.03
 
@@ -72,15 +74,22 @@ out of 80 calls**. It varies freely; it just does not vary *with the cap*.
 
 Median synthesis output is **3% of the 4096 cap**.
 
-**Why the gradient is missing, stated as a mechanism rather than a guess:** the shipped response
-prompt contains the instruction `2-4 sentences.` The reply length is set by an instruction in the
-prompt, and the cap sits an order of magnitude above where that instruction lands. A cap can only
-bind when the model is trying to write past it. Here it never is.
+**Why the gradient is missing — measured, not guessed (v1.1.0):** the shipped response prompt
+contains the instruction `2-4 sentences.`, the natural suspect. The v1.1.0 arm deleted exactly
+that sentence from the frozen payload (a byte-verified 15-byte change) and re-ran the full
+synthesis grid alongside a same-day control: per-cap medians 124–128.5 with the instruction,
+133.5–144.5 without — pooled **127 → 138.5 (1.09×)**, zero truncations, maximum 174 tokens
+against a 4096 cap. The instruction compresses medians by ~10 tokens; it is not what keeps the
+reply short. **Neither the cap nor the instruction is the binding constraint — the model's
+natural answer length for the task is.** gpt-4o-mini emits no reasoning trace, so its completion
+is all visible answer, and the visible answer for a short sales turn floors near ~130 tokens.
+Data, byte-verified variant payload and replay commands: [`instruction-off/`](instruction-off/).
 
 This does not contradict the middleware leg — it bounds it. **The workload gradient is a property
-of synthesis calls allowed to run to their natural stop. Put a length instruction in the prompt
-and the instruction becomes the binding constraint, not the cap.** A production sales reply is
-length-instructed by construction, because merchants want short replies.
+of synthesis calls allowed to run to their natural stop; on a no-trace hosted model behind a
+production prompt, the natural stop itself sits an order of magnitude below every cap.** A
+production sales reply is length-instructed by construction, because merchants want short
+replies — the instruction just lands where the model already stops.
 
 ## Layer 3 — Production confounders (the leg only this stack can claim)
 
@@ -99,7 +108,9 @@ Nothing truncates: `finish_reason` is `stop` on **160/160** calls. But the synth
 159 tokens sits inside 21% of its shipped 200-token cap, on a *three-product* result with no
 negotiation blocks attached. Those blocks are added on haggling turns, and a larger catalog
 returns four product lines instead of three. The cap is not binding today; the margin is thinner
-than the cap value suggests.
+than the cap value suggests. The v1.1.0 instruction-removed arm sharpens the point: without the
+length instruction the synthesis maximum reaches **174 tokens — 87% of the shipped cap** — so
+the instruction is part of the cap's effective margin.
 
 ### 3.2 The deployment's language configuration silently disables a downstream guard
 
