@@ -77,19 +77,24 @@ Median synthesis output is **3% of the 4096 cap**.
 **Why the gradient is missing — measured, not guessed (v1.1.0):** the shipped response prompt
 contains the instruction `2-4 sentences.`, the natural suspect. The v1.1.0 arm deleted exactly
 that sentence from the frozen payload (a byte-verified 15-byte change) and re-ran the full
-synthesis grid alongside a same-day control: per-cap medians 124–128.5 with the instruction,
-133.5–144.5 without — pooled **127 → 138.5 (1.09×)**, zero truncations, maximum 174 tokens
-against a 4096 cap. The instruction compresses medians by ~10 tokens; it is not what keeps the
-reply short. **Neither the cap nor the instruction is the binding constraint — the model's
-natural answer length for the task is.** gpt-4o-mini emits no reasoning trace, so its completion
-is all visible answer, and the visible answer for a short sales turn floors near ~130 tokens.
+synthesis grid alongside a same-day fresh control (not the first sweep re-reported; its centre,
+124–128.5, sits inside the first sweep's 118.5–130.5 span without reaching its lowest cells):
+per-cap medians 124–128.5 with the instruction, 133.5–144.5 without — pooled **127 → 138.5
+(1.09×)**, zero truncations, maximum 174 tokens against a 4096 cap. The shift is real — about 4×
+the standard error of the paired difference, and all four instruction-removed cells sit above all
+four control cells (a pattern an inert cause produces ~1 time in 16) — and it is bounded:
+removing the instruction lengthens the reply by ~9% and no more. **The instruction is a
+contributor, not the binding constraint; the order-of-magnitude gap to every cap is governed by
+the model's natural answer length**, which for a short sales turn floors near ~130 tokens.
+Whether the absence of a reasoning trace is what places that floor is the middleware leg's axis;
+it was not varied on this stack.
 Data, byte-verified variant payload and replay commands: [`instruction-off/`](instruction-off/).
 
 This does not contradict the middleware leg — it bounds it. **The workload gradient is a property
 of synthesis calls allowed to run to their natural stop; on a no-trace hosted model behind a
 production prompt, the natural stop itself sits an order of magnitude below every cap.** A
 production sales reply is length-instructed by construction, because merchants want short
-replies — the instruction just lands where the model already stops.
+replies — and the instruction trims about 9% from where the model would stop on its own.
 
 ## Layer 3 — Production confounders (the leg only this stack can claim)
 

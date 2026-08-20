@@ -33,15 +33,19 @@ shorter prompt.
 
 `finish_reason: stop` 160/160 · truncation 0/160 · distinct outputs 20/20 in every cell ·
 within-cell ranges 47–60 tokens in both arms · no-instruction maximum **174 tokens** — 0/80
-above even the application's shipped 200-token cap. The control arm reproduces the published
-v1.0.0 numbers (per-cap medians 124–128.5 vs 118.5–130.5), so there is no provider drift under
-the comparison. Bonus: Arabic-Indic digits appear in **80/80 replies of both arms** — the §3.2
+above even the application's shipped 200-token cap. The control arm is fresh calls, not the
+first sweep re-reported: its per-cap medians (124–128.5) sit inside the published v1.0.0 span
+(118.5–130.5) without reaching its two lowest cells — a few tokens of centre play that the
+same-day pairing absorbs, and no provider drift under the comparison. Bonus: Arabic-Indic digits appear in **80/80 replies of both arms** — the §3.2
 numeral-mirroring finding is not an artifact of the length instruction.
 
-**Verdict:** deleting the instruction shifts medians by ~10 tokens — direction consistent (all
-four cells higher), magnitude smaller than the run-to-run variation inside any single cell.
-**Neither the cap nor the instruction is the binding constraint; the model's natural answer
-length for the task is.** A hosted model with no reasoning trace floors near its visible answer.
+**Verdict:** deleting the instruction lengthens replies by ~9% (+11.5 pooled median) — real and
+consistent: about 4× the standard error of the paired difference, with all four
+instruction-removed cells above all four control cells (an inert cause produces that pattern
+~1 time in 16). It is also bounded: 9% and no more, against an order-of-magnitude gap to every
+cap. **The instruction is a contributor; the binding constraint is the model's natural answer
+length.** Whether the absence of a reasoning trace is what places that floor is the middleware
+leg's axis; it was not varied on this stack.
 
 **Scope:** one model, one production prompt, one frozen fixture. The reasoning half of the
 separating cell (reasoning mode on/off) is the middleware leg's measurement

@@ -33,16 +33,20 @@ over a 10× cap range. 49 tokens is 1.2% of the largest cap tested.
 Medians move 12 tokens across a 10× cap range, non-monotonically, while run-to-run variation
 inside a single cell is 48–63 tokens. Cap explains nothing. The natural suspect was the response
 prompt's instruction `2-4 sentences.` — so v1.1.0 deleted exactly that sentence from the frozen
-payload (a byte-verified 15-byte change) and re-ran the grid against a same-day control: pooled
-medians moved only **127 → 138.5 (1.09×)**, zero truncations, max 174 against a 4096 cap.
-**Neither the instruction nor the cap is the binding constraint — the model's own natural answer
-length is.** Full arm: [`instruction-off/`](instruction-off/).
+payload (a byte-verified 15-byte change) and re-ran the grid against a same-day fresh control:
+pooled medians moved **127 → 138.5 (1.09×)**, zero truncations, max 174 against a 4096 cap. The
+effect is real — ~4× the standard error of the paired difference, with every instruction-removed
+cell above every control cell — and bounded: removing the instruction lengthens the reply by ~9%
+and no more. **The instruction is a contributor, not the binding constraint; the
+order-of-magnitude gap to every cap is governed by the model's own natural answer length.**
+Full arm: [`instruction-off/`](instruction-off/).
 
 This **bounds** the workload-gradient result from the middleware leg below; it does not contradict
 it. A gradient is a property of synthesis calls allowed to run to their natural stop — and on this
-stack the natural stop itself sits an order of magnitude below every cap: a hosted model with no
-reasoning trace floors near its visible answer. A production sales reply is length-instructed by
-construction; the instruction just lands where the model already stops.
+stack the natural stop itself sits an order of magnitude below every cap. A production sales reply
+is length-instructed by construction; the instruction trims about 9% from where the model would
+stop on its own — a contributor, not the governor. Whether the absence of a reasoning trace is
+what places that floor is the middleware leg's axis; it was not varied on this stack.
 
 `finish_reason` is `stop` on 160/160 calls. Full tables, deviations and threats to validity are in
 [`analysis.md`](analysis.md).
