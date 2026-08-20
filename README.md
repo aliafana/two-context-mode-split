@@ -119,8 +119,12 @@ rules and a negotiation contract all wrapped around them. Two results follow fro
 from that: the length instruction pre-empting the cap, and the deployment-configuration finding in
 `analysis.md` §3.2.
 
-The three-way finding itself is to be archived in a joint record under all three authors; this
-repository is the per-stack engineering record that feeds it.
+This work is one leg of a three-stack convergence record — substitution-vs-synthesis measured
+independently on a sovereign 26B MoE (Converse), the JAMES cognitive middleware (Seo), and a
+production Arabic e-commerce router (Afana) — archived at
+[10.5281/zenodo.22030935](https://doi.org/10.5281/zenodo.22030935). That record states what the
+three legs jointly establish and what they explicitly do not; this repository holds the
+production leg's data and drivers.
 
 ## Changelog
 
